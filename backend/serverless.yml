@@ -22,6 +22,12 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource: "arn:aws:logs:${self:provider.region}:*:*"
 
 functions:
   # Proband Management
@@ -54,7 +60,7 @@ functions:
     handler: handlers/family.get_all
     events:
       - http:
-          path: family/{probandId}
+          path: family/proband/{probandId}
           method: get
           cors: true
   
@@ -62,7 +68,7 @@ functions:
     handler: handlers/family.update
     events:
       - http:
-          path: family/{id}
+          path: family/member/{id}
           method: put
           cors: true
   
@@ -70,7 +76,7 @@ functions:
     handler: handlers/family.delete
     events:
       - http:
-          path: family/{id}
+          path: family/member/{id}
           method: delete
           cors: true
 

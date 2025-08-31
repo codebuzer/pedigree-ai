@@ -2,10 +2,17 @@ import json
 import boto3
 import uuid
 from datetime import datetime
+from decimal import Decimal
 from pydantic import BaseModel, ValidationError
 
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('pedigree-ai-backend-dev')
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Decimal):
+            return int(obj)
+        return super(DecimalEncoder, self).default(obj)
 
 class FamilyMemberModel(BaseModel):
     name: str
@@ -43,7 +50,7 @@ def create(event, context):
                 'message': 'Family member created successfully',
                 'id': member_id,
                 'data': item
-            })
+            }, cls=DecimalEncoder)
         }
         
     except ValidationError as e:
@@ -77,7 +84,7 @@ def get_all(event, context):
             'body': json.dumps({
                 'family_members': response['Items'],
                 'count': response['Count']
-            })
+            }, cls=DecimalEncoder)
         }
         
     except Exception as e:
@@ -122,7 +129,7 @@ def update(event, context):
             'body': json.dumps({
                 'message': 'Family member updated successfully',
                 'data': item
-            })
+            }, cls=DecimalEncoder)
         }
         
     except Exception as e:
