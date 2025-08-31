@@ -1,0 +1,96 @@
+service: pedigree-ai-backend
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  memorySize: 128
+  timeout: 30
+  environment:
+    STAGE: ${self:provider.stage}
+    DYNAMODB_TABLE: ${self:service}-${self:provider.stage}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+functions:
+  # Proband Management
+  createProband:
+    handler: handlers/proband.create
+    events:
+      - http:
+          path: proband
+          method: post
+          cors: true
+  
+  getProband:
+    handler: handlers/proband.get
+    events:
+      - http:
+          path: proband/{id}
+          method: get
+          cors: true
+  
+  # Family Members Management
+  createFamilyMember:
+    handler: handlers/family.create
+    events:
+      - http:
+          path: family
+          method: post
+          cors: true
+  
+  getFamilyMembers:
+    handler: handlers/family.get_all
+    events:
+      - http:
+          path: family/{probandId}
+          method: get
+          cors: true
+  
+  updateFamilyMember:
+    handler: handlers/family.update
+    events:
+      - http:
+          path: family/{id}
+          method: put
+          cors: true
+  
+  deleteFamilyMember:
+    handler: handlers/family.delete
+    events:
+      - http:
+          path: family/{id}
+          method: delete
+          cors: true
+
+resources:
+  Resources:
+    PedigreeTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S
+          - AttributeName: sk
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+          - AttributeName: sk
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+plugins:
+  - serverless-python-requirements

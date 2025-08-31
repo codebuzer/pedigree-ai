@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Pedigree Drawing & Analysis Tool</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Pedigree Drawing & Analysis Tool</h1>
+        </header>
+        
+        <div class="main-content">
+            <!-- Proband Entry Form -->
+            <div class="proband-section">
+                <h2>Proband (Index Case) Details</h2>
+                <form id="probandForm">
+                    <input type="text" id="probandName" placeholder="Name" required>
+                    <input type="text" id="probandId" placeholder="Unique ID" required>
+                    <select id="probandSex" required>
+                        <option value="">Select Sex</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                    <input type="number" id="probandAge" placeholder="Age" required>
+                    <input type="text" id="probandDiagnosis" placeholder="Diagnosis" required>
+                    <button type="submit">Add Proband</button>
+                </form>
+            </div>
+
+            <!-- Family Members Management -->
+            <div class="family-section">
+                <h2>Family Members</h2>
+                <div id="familyList"></div>
+                <button id="addFamilyMember">Add Family Member</button>
+            </div>
+
+            <!-- Interactive Drawing Canvas -->
+            <div class="canvas-section">
+                <h2>Pedigree Drawing Canvas</h2>
+                <div class="canvas-tools">
+                    <button id="clearCanvas">Clear</button>
+                    <input type="color" id="colorPicker" value="#000000">
+                    <input type="range" id="brushSize" min="1" max="10" value="2">
+                </div>
+                <canvas id="drawingCanvas" width="800" height="600"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
