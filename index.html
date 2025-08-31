@@ -3,49 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Pedigree Drawing & Analysis Tool</title>
+    <title>MedGenAI - Clinical Pedigree Analysis Platform</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>AI Pedigree Drawing & Analysis Tool</h1>
-        </header>
-        
-        <div class="main-content">
-            <!-- Proband Entry Form -->
-            <div class="proband-section">
-                <h2>Proband (Index Case) Details</h2>
-                <form id="probandForm">
-                    <input type="text" id="probandName" placeholder="Name" required>
-                    <input type="text" id="probandId" placeholder="Unique ID" required>
-                    <select id="probandSex" required>
-                        <option value="">Select Sex</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                    </select>
-                    <input type="number" id="probandAge" placeholder="Age" required>
-                    <input type="text" id="probandDiagnosis" placeholder="Diagnosis" required>
-                    <button type="submit">Add Proband</button>
-                </form>
-            </div>
-
-            <!-- Family Members Management -->
-            <div class="family-section">
-                <h2>Family Members</h2>
-                <div id="familyList"></div>
-                <button id="addFamilyMember">Add Family Member</button>
-            </div>
-
-            <!-- Interactive Drawing Canvas -->
-            <div class="canvas-section">
-                <h2>Pedigree Drawing Canvas</h2>
-                <div class="canvas-tools">
-                    <button id="clearCanvas">Clear</button>
-                    <input type="color" id="colorPicker" value="#000000">
-                    <input type="range" id="brushSize" min="1" max="10" value="2">
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <i class="fas fa-dna logo-icon"></i>
+                    <h1>MedGenAI</h1>
+                    <span class="version">v2.1.0</span>
                 </div>
-                <canvas id="drawingCanvas" width="800" height="600"></canvas>
+                <div class="header-actions">
+                    <button class="btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="btn-primary" id="analyzeBtn">
+                        <i class="fas fa-brain"></i> AI Analysis
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-user-circle"></i> Proband Information</h3>
+                    <form id="probandForm" class="clinical-form">
+                        <div class="form-group">
+                            <label for="probandName">Patient Name</label>
+                            <input type="text" id="probandName" placeholder="Enter full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="probandMrn">Medical Record Number</label>
+                            <input type="text" id="probandMrn" placeholder="MRN-XXXX-XXXX" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="probandSex">Biological Sex</label>
+                                <select id="probandSex" required>
+                                    <option value="">Select</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="intersex">Intersex</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="probandAge">Age</label>
+                                <input type="number" id="probandAge" placeholder="Years" min="0" max="120" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="probandDiagnosis">Primary Diagnosis</label>
+                            <textarea id="probandDiagnosis" placeholder="Enter clinical diagnosis with ICD-10 codes" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="probandEthnicity">Ethnicity</label>
+                            <select id="probandEthnicity">
+                                <option value="">Select ethnicity</option>
+                                <option value="caucasian">Caucasian</option>
+                                <option value="african">African</option>
+                                <option value="asian">Asian</option>
+                                <option value="hispanic">Hispanic/Latino</option>
+                                <option value="native">Native American</option>
+                                <option value="mixed">Mixed</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary full-width">
+                            <i class="fas fa-plus"></i> Register Proband
+                        </button>
+                    </form>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-users"></i> Family Registry</h3>
+                    <div id="familyList" class="family-list"></div>
+                    <button id="addFamilyMember" class="btn-secondary full-width">
+                        <i class="fas fa-user-plus"></i> Add Family Member
+                    </button>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-chart-line"></i> Analysis Summary</h3>
+                    <div id="analysisSummary" class="analysis-panel">
+                        <div class="metric">
+                            <span class="metric-label">Generations</span>
+                            <span class="metric-value" id="generationCount">0</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Affected Individuals</span>
+                            <span class="metric-value" id="affectedCount">0</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Inheritance Pattern</span>
+                            <span class="metric-value" id="inheritancePattern">Unknown</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <div class="canvas-container">
+                    <div class="canvas-header">
+                        <h2><i class="fas fa-project-diagram"></i> Pedigree Construction</h2>
+                        <div class="canvas-controls">
+                            <div class="tool-group">
+                                <label>Drawing Mode:</label>
+                                <div class="toggle-group">
+                                    <button class="toggle-btn active" data-mode="freehand">
+                                        <i class="fas fa-pencil-alt"></i> Freehand
+                                    </button>
+                                    <button class="toggle-btn" data-mode="symbols">
+                                        <i class="fas fa-shapes"></i> Symbols
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="tool-group">
+                                <label>Brush Size:</label>
+                                <input type="range" id="brushSize" min="1" max="8" value="2" class="slider">
+                                <span id="brushSizeValue">2px</span>
+                            </div>
+                            <div class="tool-group">
+                                <label>Color:</label>
+                                <input type="color" id="colorPicker" value="#2c3e50" class="color-input">
+                            </div>
+                            <button id="clearCanvas" class="btn-danger">
+                                <i class="fas fa-trash"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="canvas-workspace">
+                        <div class="symbol-palette" id="symbolPalette">
+                            <div class="palette-header">Pedigree Symbols</div>
+                            <div class="symbol-grid">
+                                <div class="symbol-item" data-symbol="male">
+                                    <div class="symbol-preview male-symbol"></div>
+                                    <span>Male</span>
+                                </div>
+                                <div class="symbol-item" data-symbol="female">
+                                    <div class="symbol-preview female-symbol"></div>
+                                    <span>Female</span>
+                                </div>
+                                <div class="symbol-item" data-symbol="affected-male">
+                                    <div class="symbol-preview male-symbol affected"></div>
+                                    <span>Affected Male</span>
+                                </div>
+                                <div class="symbol-item" data-symbol="affected-female">
+                                    <div class="symbol-preview female-symbol affected"></div>
+                                    <span>Affected Female</span>
+                                </div>
+                                <div class="symbol-item" data-symbol="carrier-female">
+                                    <div class="symbol-preview female-symbol carrier"></div>
+                                    <span>Carrier Female</span>
+                                </div>
+                                <div class="symbol-item" data-symbol="deceased">
+                                    <div class="symbol-preview male-symbol deceased"></div>
+                                    <span>Deceased</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <canvas id="drawingCanvas" width="1200" height="800" class="pedigree-canvas"></canvas>
+                        
+                        <div class="canvas-grid-overlay"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay hidden">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p>Processing genetic analysis...</p>
+            </div>
+        </div>
+
+        <!-- Family Member Modal -->
+        <div id="familyModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Add Family Member</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <form id="familyMemberForm" class="clinical-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="memberName">Full Name</label>
+                            <input type="text" id="memberName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="memberSex">Biological Sex</label>
+                            <select id="memberSex" required>
+                                <option value="">Select</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="memberRelationship">Relationship to Proband</label>
+                            <select id="memberRelationship" required>
+                                <option value="">Select relationship</option>
+                                <option value="father">Father</option>
+                                <option value="mother">Mother</option>
+                                <option value="brother">Brother</option>
+                                <option value="sister">Sister</option>
+                                <option value="son">Son</option>
+                                <option value="daughter">Daughter</option>
+                                <option value="paternal_grandfather">Paternal Grandfather</option>
+                                <option value="paternal_grandmother">Paternal Grandmother</option>
+                                <option value="maternal_grandfather">Maternal Grandfather</option>
+                                <option value="maternal_grandmother">Maternal Grandmother</option>
+                                <option value="uncle">Uncle</option>
+                                <option value="aunt">Aunt</option>
+                                <option value="cousin">Cousin</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="memberAge">Age</label>
+                            <input type="number" id="memberAge" min="0" max="120">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="memberStatus">Clinical Status</label>
+                        <select id="memberStatus">
+                            <option value="unaffected">Unaffected</option>
+                            <option value="affected">Affected</option>
+                            <option value="carrier">Carrier</option>
+                            <option value="unknown">Unknown</option>
+                            <option value="deceased">Deceased</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="memberNotes">Clinical Notes</label>
+                        <textarea id="memberNotes" rows="3" placeholder="Additional clinical information"></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" id="cancelMember">Cancel</button>
+                        <button type="submit" class="btn-primary">Add Member</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
